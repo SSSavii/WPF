@@ -1,0 +1,206 @@
+﻿<Window x:Class="WpfApp2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Управление адаптацией" Height="700" Width="1200">
+    <Grid>
+        <TabControl>
+            <!-- Вкладка "Адаптационные модули" -->
+            <TabItem Header="Адаптационные модули">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Button Content="Создать модуль" 
+                            Width="150" 
+                            Height="30" 
+                            Margin="10"
+                            Click="CreateModule_Click"/>
+
+                    <ListView x:Name="ModulesList" 
+                              Grid.Row="1" 
+                              Margin="10">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Название" Width="150" DisplayMemberBinding="{Binding Name}"/>
+                                <GridViewColumn Header="Должность" Width="150" DisplayMemberBinding="{Binding Position}"/>
+                                <GridViewColumn Header="Статус" Width="100" DisplayMemberBinding="{Binding Status}"/>
+                                <GridViewColumn Header="Разработчики" Width="200">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ItemsControl ItemsSource="{Binding Developers}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding}" Margin="0,2"/>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Согласующие" Width="200">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ItemsControl ItemsSource="{Binding Approvers}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding}" Margin="0,2"/>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Главный согласующий" Width="150" DisplayMemberBinding="{Binding MainApprover}"/>
+                                <GridViewColumn Header="Срок" Width="100" DisplayMemberBinding="{Binding Deadline, StringFormat=dd.MM.yyyy}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+            </TabItem>
+
+            <!-- Вкладка "Конструктор" -->
+            <TabItem Header="Конструктор">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Секция выбора информации -->
+                    <GroupBox Header="Основная информация" Grid.Row="0">
+                        <StackPanel Margin="10">
+                            <DockPanel Margin="0,5">
+                                <TextBlock Text="Сотрудник:" Width="120"/>
+                                <ComboBox x:Name="EmployeeComboBox" 
+                                         SelectionChanged="EmployeeComboBox_SelectionChanged"
+                                         Margin="5,0,0,0"/>
+                            </DockPanel>
+
+                            <DockPanel Margin="0,5">
+                                <TextBlock Text="Отдел:" Width="120"/>
+                                <ComboBox x:Name="DepartmentComboBox"
+                                         SelectionChanged="DepartmentComboBox_SelectionChanged"
+                                         Margin="5,0,0,0"/>
+                            </DockPanel>
+
+                            <DockPanel Margin="0,5">
+                                <TextBlock Text="Должность:" Width="120"/>
+                                <ComboBox x:Name="PositionComboBox"
+                                         SelectionChanged="PositionComboBox_SelectionChanged"
+                                         Margin="5,0,0,0"/>
+                            </DockPanel>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- Секция модулей и наставников -->
+                    <Grid Grid.Row="1" Margin="0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Модули -->
+                        <GroupBox Header="Доступные модули" Grid.Column="0" Margin="0,0,5,0">
+                            <ScrollViewer>
+                                <WrapPanel x:Name="ModulesPanel">
+                                    <!-- Модули будут добавляться программно -->
+                                </WrapPanel>
+                            </ScrollViewer>
+                        </GroupBox>
+
+                        <!-- Наставники -->
+                        <GroupBox Header="Назначение наставников" Grid.Column="1" Margin="5,0,0,0">
+                            <ListView x:Name="MentorsListView">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Модуль" Width="150" 
+                                                      DisplayMemberBinding="{Binding ModuleName}"/>
+                                        <GridViewColumn Header="Наставник" Width="150">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <ComboBox ItemsSource="{Binding AvailableMentors}"
+                                                            SelectedItem="{Binding SelectedMentor}"
+                                                            Width="140"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </GroupBox>
+                    </Grid>
+
+                    <!-- Кнопка формирования программы -->
+                    <Button Grid.Row="2" 
+                            Content="Сформировать программу" 
+                            Width="200" Height="30"
+                            HorizontalAlignment="Right"
+                            Click="GenerateProgram_Click"/>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Анализ адаптационных мероприятий">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Фильтры -->
+                    <GroupBox Header="Фильтры" Grid.Row="0">
+                        <StackPanel Orientation="Horizontal">
+                            <DockPanel Margin="10,0">
+                                <TextBlock Text="Отдел:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                <ComboBox x:Name="AnalysisDepartmentFilter" Width="150"/>
+                            </DockPanel>
+                            <DockPanel Margin="10,0">
+                                <TextBlock Text="Должность:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                <ComboBox x:Name="AnalysisPositionFilter" Width="150"/>
+                            </DockPanel>
+                            <DockPanel Margin="10,0">
+                                <TextBlock Text="Квартал:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                <ComboBox x:Name="AnalysisQuarterFilter" Width="100">
+                                    <ComboBoxItem>1 квартал</ComboBoxItem>
+                                    <ComboBoxItem>2 квартал</ComboBoxItem>
+                                    <ComboBoxItem>3 квартал</ComboBoxItem>
+                                    <ComboBoxItem>4 квартал</ComboBoxItem>
+                                </ComboBox>
+                            </DockPanel>
+                            <Button Content="Применить фильтр" Click="ApplyAnalysisFilter_Click"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- Таблица отчетов -->
+                    <DataGrid x:Name="AdaptationReportsGrid" 
+                  Grid.Row="1" 
+                  Margin="0,10"
+                  AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Сотрудник" Binding="{Binding EmployeeName}"/>
+                            <DataGridTextColumn Header="Отдел" Binding="{Binding Department}"/>
+                            <DataGridTextColumn Header="Должность" Binding="{Binding Position}"/>
+                            <DataGridTextColumn Header="Кол-во ошибок" Binding="{Binding ErrorCount}"/>
+                            <DataGridTextColumn Header="% выполнения" Binding="{Binding CompletionPercentage}"/>
+                            <DataGridTextColumn Header="Статус" Binding="{Binding Status}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Диаграммы -->
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <WindowsFormsHost x:Name="ErrorChartHost" Grid.Column="0"/>
+                        <WindowsFormsHost x:Name="CompletionChartHost" Grid.Column="1"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
